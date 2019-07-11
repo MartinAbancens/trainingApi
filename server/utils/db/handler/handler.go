@@ -66,6 +66,34 @@ func GetCurrencyByID(db *gorm.DB) func(c *gin.Context) {
 	}
 }
 
+// GetBestBuyValue handles GET one currency by name (best buy value from bank)
+func GetBestBuyValue(db *gorm.DB) func(c *gin.Context) {
+	return func(c *gin.Context) {
+		name := c.Params.ByName("id")
+		var currency models.Currency
+		if err := db.Where("name = ?", name).Order("buy desc").First(&currency).Error; err != nil {
+			c.AbortWithStatus(404)
+			fmt.Println(err)
+		} else {
+			c.JSON(200, currency)
+		}
+	}
+}
+
+// GetBestSellValue handles GET one currency by name (best sell value from bank)
+func GetBestSellValue(db *gorm.DB) func(c *gin.Context) {
+	return func(c *gin.Context) {
+		name := c.Params.ByName("id")
+		var currency models.Currency
+		if err := db.Where("name = ?", name).Order("sell asc").First(&currency).Error; err != nil {
+			c.AbortWithStatus(404)
+			fmt.Println(err)
+		} else {
+			c.JSON(200, currency)
+		}
+	}
+}
+
 // GetAllCurrencies handle GET all posts from the db
 func GetAllCurrencies(db *gorm.DB) func(c *gin.Context) {
 	return func(c *gin.Context) {

@@ -6,4 +6,5 @@ type Currency struct {
 	Name string  `json:"name"`
 	Buy  float64 `json:"buy"`
 	Sell float64 `json:"sell"`
+	Bank string  `json:"bank"`
 }

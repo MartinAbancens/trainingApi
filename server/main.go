@@ -60,6 +60,10 @@ func main() {
 
 			currency.GET("/:id", handler.GetCurrencyByID(db))
 
+			currency.GET("/:id/buy", handler.GetBestBuyValue(db))
+
+			currency.GET("/:id/sell", handler.GetBestSellValue(db))
+
 			currency.PUT("/:id", handler.UpdateCurrency(db))
 
 			currency.POST("/", handler.CreateCurrency(db))
