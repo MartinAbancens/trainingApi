@@ -10,7 +10,7 @@ import (
 	"github.com/jinzhu/gorm"
 
 	// Repositories
-	r "trainingApi/server/currency"
+	currency "trainingApi/server/currency"
 )
 
 // // UpdateCurrency handles PUT to update a Currency
@@ -57,11 +57,12 @@ import (
 // GetCurrencyByID handles GET one Currency by ID
 func GetCurrencyByID(db *gorm.DB) func(c *gin.Context) {
 	return func(c *gin.Context) {
-		currency, err := r.FindCurrency(c.Params.ByName("id"), db)
+		r := currency.NewRepository(db)
+		result, err := r.FindCurrency(c.Params.ByName("id"))
 		if err != nil {
 			c.AbortWithStatus(404)
 		} else {
-			c.JSON(200, currency)
+			c.JSON(200, result)
 		}
 	}
 }
@@ -69,11 +70,12 @@ func GetCurrencyByID(db *gorm.DB) func(c *gin.Context) {
 // GetBestBuyValue handles GET one currency by name (best buy value from bank)
 func GetBestBuyValue(db *gorm.DB) func(c *gin.Context) {
 	return func(c *gin.Context) {
-		currency, err := r.FindBestBuyCurrency(c.Params.ByName("id"), db)
+		r := currency.NewRepository(db)
+		result, err := r.FindBestBuyCurrency(c.Params.ByName("id"))
 		if err != nil {
 			c.AbortWithStatus(404)
 		} else {
-			c.JSON(200, currency)
+			c.JSON(200, result)
 		}
 	}
 }
@@ -81,11 +83,12 @@ func GetBestBuyValue(db *gorm.DB) func(c *gin.Context) {
 // GetBestSellValue handles GET one currency by name (best sell value from bank)
 func GetBestSellValue(db *gorm.DB) func(c *gin.Context) {
 	return func(c *gin.Context) {
-		currency, err := r.FindBestSellCurrency(c.Params.ByName("id"), db)
+		r := currency.NewRepository(db)
+		result, err := r.FindBestSellCurrency(c.Params.ByName("id"))
 		if err != nil {
 			c.AbortWithStatus(404)
 		} else {
-			c.JSON(100, currency)
+			c.JSON(100, result)
 		}
 	}
 }
@@ -93,11 +96,12 @@ func GetBestSellValue(db *gorm.DB) func(c *gin.Context) {
 // GetAllCurrencies handle GET all currencies from the db
 func GetAllCurrencies(db *gorm.DB) func(c *gin.Context) {
 	return func(c *gin.Context) {
-		currencies, err := r.FindCurrencies(db)
+		r := currency.NewRepository(db)
+		results, err := r.FindCurrencies()
 		if err != nil {
 			c.AbortWithStatus(404)
 		} else {
-			c.JSON(100, currencies)
+			c.JSON(100, results)
 		}
 	}
 }
