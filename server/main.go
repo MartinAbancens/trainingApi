@@ -14,7 +14,7 @@ import (
 
 	// DB - internal
 
-	"tonic/server/utils/db/handler"
+	handler "trainingApi/server/handlers"
 	// "tonic/server/utils/db/migrate"
 )
 
@@ -64,11 +64,11 @@ func main() {
 
 			currency.GET("/:id/sell", handler.GetBestSellValue(db))
 
-			currency.PUT("/:id", handler.UpdateCurrency(db))
+			// currency.PUT("/:id", handler.UpdateCurrency(db))
 
-			currency.POST("/", handler.CreateCurrency(db))
+			// currency.POST("/", handler.CreateCurrency(db))
 
-			currency.DELETE("/:id", handler.DeleteCurrency(db))
+			// currency.DELETE("/:id", handler.DeleteCurrency(db))
 		}
 		// Begin api base routes
 		api.GET("/", func(c *gin.Context) {
