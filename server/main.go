@@ -14,7 +14,7 @@ import (
 
 	// DB - internal
 
-	handler "trainingApi/server/handlers"
+	handler "trainingApi/server/currency/handlers"
 	// "tonic/server/utils/db/migrate"
 )
 
@@ -56,7 +56,7 @@ func main() {
 		// Currency Subgroup
 		currency := api.Group("/currency/")
 		{
-			currency.GET("/", handler.GetAllCurrencies(db))
+			currency.GET("/", handler.GetAllCurrenciesBestBuySell(db))
 
 			currency.GET("/:id", handler.GetCurrencyByID(db))
 
@@ -81,7 +81,7 @@ func main() {
 		// api.GET("/specific/path/to/route/:id", someHandler)
 	}
 	// Start and run the server
-	router.Run(":5000")
+	router.Run(":3000")
 }
 
 // // A standard handler function

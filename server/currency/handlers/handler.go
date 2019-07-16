@@ -6,11 +6,23 @@ import (
 	//"trainingApi/server/models"
 
 	// Gin and Gorm
+	"fmt"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 
 	// Repositories
 	currency "trainingApi/server/currency"
+	"trainingApi/server/currency/models"
+)
+
+var (
+	findCurrency         = currency.FindByID
+	findBestBuyCurrency  = currency.FindBestBuy
+	findBestSellCurrency = currency.FindBestSell
+	findAllCurrencies    = currency.FindAll
+	findAllBestSellBuy   = currency.FindAllBestSellBuy
 )
 
 // // UpdateCurrency handles PUT to update a Currency
@@ -57,8 +69,7 @@ import (
 // GetCurrencyByID handles GET one Currency by ID
 func GetCurrencyByID(db *gorm.DB) func(c *gin.Context) {
 	return func(c *gin.Context) {
-		r := currency.NewRepository(db)
-		result, err := r.FindCurrency(c.Params.ByName("id"))
+		result, err := findCurrency(c.Params.ByName("id"), db)
 		if err != nil {
 			c.AbortWithStatus(404)
 		} else {
@@ -70,8 +81,7 @@ func GetCurrencyByID(db *gorm.DB) func(c *gin.Context) {
 // GetBestBuyValue handles GET one currency by name (best buy value from bank)
 func GetBestBuyValue(db *gorm.DB) func(c *gin.Context) {
 	return func(c *gin.Context) {
-		r := currency.NewRepository(db)
-		result, err := r.FindBestBuyCurrency(c.Params.ByName("id"))
+		result, err := findBestBuyCurrency(c.Params.ByName("id"), db)
 		if err != nil {
 			c.AbortWithStatus(404)
 		} else {
@@ -83,8 +93,7 @@ func GetBestBuyValue(db *gorm.DB) func(c *gin.Context) {
 // GetBestSellValue handles GET one currency by name (best sell value from bank)
 func GetBestSellValue(db *gorm.DB) func(c *gin.Context) {
 	return func(c *gin.Context) {
-		r := currency.NewRepository(db)
-		result, err := r.FindBestSellCurrency(c.Params.ByName("id"))
+		result, err := findBestSellCurrency(c.Params.ByName("id"), db)
 		if err != nil {
 			c.AbortWithStatus(404)
 		} else {
@@ -96,12 +105,30 @@ func GetBestSellValue(db *gorm.DB) func(c *gin.Context) {
 // GetAllCurrencies handle GET all currencies from the db
 func GetAllCurrencies(db *gorm.DB) func(c *gin.Context) {
 	return func(c *gin.Context) {
-		r := currency.NewRepository(db)
-		results, err := r.FindCurrencies()
+		results, err := findAllCurrencies(db)
 		if err != nil {
 			c.AbortWithStatus(404)
 		} else {
-			c.JSON(100, results)
+			c.JSON(200, results)
+		}
+	}
+}
+
+// GetAllCurrenciesBestBuySell handle GET all the best prices of all currencies from the db
+func GetAllCurrenciesBestBuySell(db *gorm.DB) func(c *gin.Context) {
+	return func(c *gin.Context) {
+		fmt.Println("asdasd")
+		bestBuy, bestSell, err := findAllBestSellBuy(db)
+		if err != nil {
+			c.AbortWithStatus(404)
+		} else {
+			buyAndSell := make(map[string][]models.Currency)
+
+			buyAndSell["buy"] = bestBuy
+			buyAndSell["sell"] = bestSell
+
+			fmt.Println("final:", buyAndSell)
+			c.JSON(http.StatusOK, buyAndSell)
 		}
 	}
 }
