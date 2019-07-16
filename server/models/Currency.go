@@ -1,4 +1,4 @@
-package models
+package model
 
 // Currency model for the database
 type Currency struct {

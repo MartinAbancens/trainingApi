@@ -14,7 +14,7 @@ import (
 
 	// DB - internal
 
-	handler "trainingApi/server/currency/handlers"
+	handler "trainingApi/server/handlers"
 	// "tonic/server/utils/db/migrate"
 )
 

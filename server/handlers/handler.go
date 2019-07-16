@@ -8,22 +8,21 @@ import (
 	// Gin and Gorm
 	"fmt"
 	"net/http"
+	model "trainingApi/server/models"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 
 	// Repositories
-	currency "trainingApi/server/currency"
-	"trainingApi/server/currency/models"
+	repo "trainingApi/server/repository"
 )
 
-var (
-	findCurrency         = currency.FindByID
-	findBestBuyCurrency  = currency.FindBestBuy
-	findBestSellCurrency = currency.FindBestSell
-	findAllCurrencies    = currency.FindAll
-	findAllBestSellBuy   = currency.FindAllBestSellBuy
-)
+// var (
+// 	findCurrency       = repo.GetByID
+// 	findBestCurrency   = repo.GetByOrder
+// 	findAllCurrencies  = repo.GetAll
+// 	findAllBestSellBuy = repo.GetBestBuySell
+// )
 
 // // UpdateCurrency handles PUT to update a Currency
 // func UpdateCurrency(db *gorm.DB) func(c *gin.Context) {
@@ -36,7 +35,7 @@ var (
 // 		}
 // 		c.BindJSON(&currency)
 // 		db.Save(&currency)
-// 		c.JSON(200, currency)
+// 		c.JSON(http.StatusOK, currency)
 // 	}
 // }
 
@@ -51,7 +50,7 @@ var (
 // 			fmt.Println(err)
 // 		} else {
 // 			msg := fmt.Sprintf("blog post %s has been deleted", id)
-// 			c.JSON(200, gin.H{"message": msg})
+// 			c.JSON(http.StatusOK, gin.H{"message": msg})
 // 		}
 // 	}
 // }
@@ -62,18 +61,19 @@ var (
 // 		var currency models.Currency
 // 		c.BindJSON(&currency)
 // 		db.Create(&currency)
-// 		c.JSON(200, currency)
+// 		c.JSON(http.StatusOK, currency)
 // 	}
 // }
 
 // GetCurrencyByID handles GET one Currency by ID
 func GetCurrencyByID(db *gorm.DB) func(c *gin.Context) {
 	return func(c *gin.Context) {
-		result, err := findCurrency(c.Params.ByName("id"), db)
+		r := repo.CreateRepository(db)
+		result, err := r.GetByID(c.Params.ByName("id"))
 		if err != nil {
 			c.AbortWithStatus(404)
 		} else {
-			c.JSON(200, result)
+			c.JSON(http.StatusOK, result)
 		}
 	}
 }
@@ -81,11 +81,12 @@ func GetCurrencyByID(db *gorm.DB) func(c *gin.Context) {
 // GetBestBuyValue handles GET one currency by name (best buy value from bank)
 func GetBestBuyValue(db *gorm.DB) func(c *gin.Context) {
 	return func(c *gin.Context) {
-		result, err := findBestBuyCurrency(c.Params.ByName("id"), db)
+		r := repo.CreateRepository(db)
+		result, err := r.GetByOrder(c.Params.ByName("id"), "buy desc")
 		if err != nil {
 			c.AbortWithStatus(404)
 		} else {
-			c.JSON(200, result)
+			c.JSON(http.StatusOK, result)
 		}
 	}
 }
@@ -93,11 +94,12 @@ func GetBestBuyValue(db *gorm.DB) func(c *gin.Context) {
 // GetBestSellValue handles GET one currency by name (best sell value from bank)
 func GetBestSellValue(db *gorm.DB) func(c *gin.Context) {
 	return func(c *gin.Context) {
-		result, err := findBestSellCurrency(c.Params.ByName("id"), db)
+		r := repo.CreateRepository(db)
+		result, err := r.GetByOrder(c.Params.ByName("id"), "sell asc")
 		if err != nil {
 			c.AbortWithStatus(404)
 		} else {
-			c.JSON(100, result)
+			c.JSON(http.StatusOK, result)
 		}
 	}
 }
@@ -105,11 +107,12 @@ func GetBestSellValue(db *gorm.DB) func(c *gin.Context) {
 // GetAllCurrencies handle GET all currencies from the db
 func GetAllCurrencies(db *gorm.DB) func(c *gin.Context) {
 	return func(c *gin.Context) {
-		results, err := findAllCurrencies(db)
+		r := repo.CreateRepository(db)
+		results, err := r.GetAll()
 		if err != nil {
 			c.AbortWithStatus(404)
 		} else {
-			c.JSON(200, results)
+			c.JSON(http.StatusOK, results)
 		}
 	}
 }
@@ -117,12 +120,12 @@ func GetAllCurrencies(db *gorm.DB) func(c *gin.Context) {
 // GetAllCurrenciesBestBuySell handle GET all the best prices of all currencies from the db
 func GetAllCurrenciesBestBuySell(db *gorm.DB) func(c *gin.Context) {
 	return func(c *gin.Context) {
-		fmt.Println("asdasd")
-		bestBuy, bestSell, err := findAllBestSellBuy(db)
+		r := repo.CreateRepository(db)
+		bestBuy, bestSell, err := r.GetBestBuySell()
 		if err != nil {
 			c.AbortWithStatus(404)
 		} else {
-			buyAndSell := make(map[string][]models.Currency)
+			buyAndSell := make(map[string]*[]model.Currency)
 
 			buyAndSell["buy"] = bestBuy
 			buyAndSell["sell"] = bestSell
