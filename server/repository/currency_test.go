@@ -2,13 +2,14 @@ package repository
 
 import (
 	"database/sql"
+	"fmt"
 	"regexp"
 	"strconv"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	// "github.com/Rosaniline/gorm-ut/pkg/model"
-	"github.com/go-test/deep"
+
 	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
@@ -22,7 +23,7 @@ type Suite struct {
 	mock sqlmock.Sqlmock
 
 	repository Repository
-	person     *model.Currency
+	currency   *model.Currency
 }
 
 func (s *Suite) SetupSuite() {
@@ -53,22 +54,24 @@ func TestInit(t *testing.T) {
 func (s *Suite) Test_repository_GetByID() {
 	var (
 		id   = int64(1)
-		name = "test-name"
+		name = "USD"
 		bank = "Frances"
 		buy  = float64(3.33)
 		sell = float64(5.44)
 	)
 
 	s.mock.ExpectQuery(regexp.QuoteMeta(
-		`SELECT * FROM "person" WHERE (id = $1)`)).
-		WithArgs(id).
-		WillReturnRows(sqlmock.NewRows([]string{"id", "name"}).
-			AddRow(id, name))
+		"SELECT * FROM `currencies` WHERE (id = ?) ORDER BY `currencies`.`id` ASC LIMIT 1")).
+		WithArgs(strconv.FormatInt(id, 10)).
+		WillReturnRows(sqlmock.NewRows([]string{"id", "name", "bank", "buy", "sell"}).
+			AddRow(id, name, bank, buy, sell))
 
 	res, err := s.repository.GetByID(strconv.FormatInt(id, 10))
 
+	fmt.Println("response:", *res)
+
 	require.NoError(s.T(), err)
-	require.Nil(s.T(), deep.Equal(&model.Currency{ID: id, Name: name, Bank: bank, Buy: buy, Sell: sell}, res))
+	require.Equal(s.T(), &model.Currency{ID: id, Name: name, Bank: bank, Buy: buy, Sell: sell}, res, "no anda")
 }
 
 // func (s *Suite) Test_repository_Create() {
