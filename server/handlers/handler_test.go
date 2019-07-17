@@ -1,88 +1,49 @@
 package handler
 
-// import (
-// 	"testing"
+import (
+	"database/sql"
+	"testing"
 
-// 	"github.com/DATA-DOG/go-sqlmock"
-// 	"github.com/jinzhu/gorm"
-// 	_ "github.com/jinzhu/gorm/dialects/mysql"
-// )
+	"github.com/DATA-DOG/go-sqlmock"
+	// "github.com/Rosaniline/gorm-ut/pkg/model"
 
-// func testGetCurrencyByIDgo(t *testing.T) {
-// 	// db, mock, err := sqlmock.New()
-// 	// if err != nil {
-// 	// 	t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
-// 	// }
-// 	// defer db.Close()
+	"github.com/jinzhu/gorm"
+	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/suite"
 
-// 	// mock.ExpectBegin()
-// 	// mock.ExpectExec("UPDATE products").WillReturnResult(sqlmock.NewResult(1, 1))
-// 	// mock.ExpectExec("INSERT INTO product_viewers").WithArgs(2, 3).WillReturnResult(sqlmock.NewResult(1, 1))
-// 	// mock.ExpectCommit()
+	model "trainingApi/server/models"
+)
 
-// 	// // now we execute our method
-// 	// if err = recordStats(db, 2, 3); err != nil {
-// 	// 	t.Errorf("error was not expected while updating stats: %s", err)
-// 	// }
+type Suite struct {
+	suite.Suite
+	DB   *gorm.DB
+	mock sqlmock.Sqlmock
 
-// 	// // we make sure that all expectations were met
-// 	// if err := mock.ExpectationsWereMet(); err != nil {
-// 	// 	t.Errorf("there were unfulfilled expectations: %s", err)
-// 	// }
+	repository Repository
+	currency   *model.Currency
+}
 
-// 	// -----------------------------------------
+func (s *Suite) SetupSuite() {
+	var (
+		db  *sql.DB
+		err error
+	)
 
-// 	// db, mock, err := sqlmock.New()
-// 	// if err != nil {
-// 	// 	t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
-// 	// }
-// 	// defer db.Close()
+	db, s.mock, err = sqlmock.New()
+	require.NoError(s.T(), err)
 
-// 	// // create app with mocked db, request and response to test
-// 	// app := &api{db}
-// 	// req, err := http.NewRequest("GET", "http://localhost/posts", nil)
-// 	// if err != nil {
-// 	// 	t.Fatalf("an error '%s' was not expected while creating request", err)
-// 	// }
-// 	// w := httptest.NewRecorder()
+	s.DB, err = gorm.Open("mysql", db)
+	require.NoError(s.T(), err)
 
-// 	// // before we actually execute our api function, we need to expect required DB actions
-// 	// rows := sqlmock.NewRows([]string{"id", "title", "body"}).
-// 	// 	AddRow(1, "post 1", "hello").
-// 	// 	AddRow(2, "post 2", "world")
+	s.DB.LogMode(true)
 
-// 	// mock.ExpectQuery("^SELECT (.+) FROM posts$").WillReturnRows(rows)
+	s.repository = CreateRepository(s.DB)
+}
 
-// 	// // now we execute our request
-// 	// app.posts(w, req)
+func (s *Suite) AfterTest(_, _ string) {
+	require.NoError(s.T(), s.mock.ExpectationsWereMet())
+}
 
-// 	// if w.Code != 200 {
-// 	// 	t.Fatalf("expected status code to be 200, but got: %d", w.Code)
-// 	// }
-
-// 	// data := struct {
-// 	// 	Posts []*post
-// 	// }{Posts: []*post{
-// 	// 	{ID: 1, Title: "post 1", Body: "hello"},
-// 	// 	{ID: 2, Title: "post 2", Body: "world"},
-// 	// }}
-// 	// app.assertJSON(w.Body.Bytes(), data, t)
-
-// 	// // we make sure that all expectations were met
-// 	// if err := mock.ExpectationsWereMet(); err != nil {
-// 	// 	t.Errorf("there were unfulfilled expectations: %s", err)
-// 	// }
-
-// 	db, mock, err := sqlmock.New()
-// 	if err != nil {
-// 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
-// 	}
-
-// 	var gormDB *gorm.DB
-
-// 	gormDB, _ = gorm.Open("mysql", db)
-
-// 	defer db.Close()
-
-// 	GetCurrencyByID(gormDB)
-// }
+func TestInit(t *testing.T) {
+	suite.Run(t, new(Suite))
+}

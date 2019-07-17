@@ -14,8 +14,12 @@ import (
 
 	// DB - internal
 
-	handler "trainingApi/server/handlers"
+	h "trainingApi/server/handlers"
 	// "tonic/server/utils/db/migrate"
+)
+
+var (
+	handler h.Handler
 )
 
 var db *gorm.DB
@@ -43,6 +47,8 @@ func main() {
 	// db.AutoMigrate(&models.Currency{})
 	// migrate.Start(db)
 
+	h := handler.InitializeHandler(db)
+
 	// Set the router as the default one shipped with Gin
 	router := gin.Default()
 
@@ -52,23 +58,22 @@ func main() {
 	// API Route Groups
 	api := router.Group("/api/")
 	{
-
 		// Currency Subgroup
 		currency := api.Group("/currency/")
 		{
-			currency.GET("/", handler.GetAllCurrenciesBestBuySell(db))
+			currency.GET("/", h.GetAllValuesOrdered())
 
-			currency.GET("/:id", handler.GetCurrencyByID(db))
+			currency.GET("/:id", h.GetValueByID())
 
-			currency.GET("/:id/buy", handler.GetBestBuyValue(db))
+			currency.GET("/:id/buy", h.GetValueByOrderDesc())
 
-			currency.GET("/:id/sell", handler.GetBestSellValue(db))
+			currency.GET("/:id/sell", h.GetValueByOrderAsc())
 
-			// currency.PUT("/:id", handler.UpdateCurrency(db))
+			// currency.PUT("/:id", h.UpdateCurrency())
 
-			// currency.POST("/", handler.CreateCurrency(db))
+			// currency.POST("/", h.CreateCurrency())
 
-			// currency.DELETE("/:id", handler.DeleteCurrency(db))
+			// currency.DELETE("/:id", h.DeleteCurrency())
 		}
 		// Begin api base routes
 		api.GET("/", func(c *gin.Context) {

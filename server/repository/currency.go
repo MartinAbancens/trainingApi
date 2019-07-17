@@ -6,18 +6,6 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-// Repository with all methods to interact with db
-// type Repository struct {
-// 	db *gorm.DB
-// }
-
-// // NewRepository constructor
-// func NewRepository(db *gorm.DB) *Repository {
-// 	return &Repository{
-// 		db,
-// 	}
-// }
-
 // Repository is an interface for repositories
 type Repository interface {
 	GetByID(id string) (*model.Currency, error)
