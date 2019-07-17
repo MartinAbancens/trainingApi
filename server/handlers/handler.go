@@ -67,7 +67,7 @@ import (
 
 // Handler interface
 type Handler interface {
-	InitializeHandler(*gorm.DB) *handler
+	InitializeHandler(*gorm.DB) *Currency
 	GetValueByID()
 	GetValueByOrderDesc()
 	GetValueByOrderAsc()
@@ -75,20 +75,20 @@ type Handler interface {
 	GetAllValuesOrdered()
 }
 
-// handler struct that holds the repository instance and package functions
-type handler struct {
+// Currency struct that holds the repository instance and package functions
+type Currency struct {
 	r repo.Repository
 }
 
 // InitializeHandler is used to create and obtain a pointer to the handler
-func (h *handler) InitializeHandler(db *gorm.DB) *handler {
-	return &handler{
+func InitializeHandler(db *gorm.DB) *Currency {
+	return &Currency{
 		r: repo.CreateRepository(db),
 	}
 }
 
-// GetCurrencyByID handles GET one Currency by ID
-func (h *handler) GetValueByID() func(c *gin.Context) {
+// GetValueByID handles GET one Currency by ID
+func (h *Currency) GetValueByID() func(c *gin.Context) {
 	return func(c *gin.Context) {
 		result, err := h.r.GetByID(c.Params.ByName("id"))
 		if err != nil {
@@ -99,8 +99,8 @@ func (h *handler) GetValueByID() func(c *gin.Context) {
 	}
 }
 
-// GetBestBuyValue handles GET one currency by name (best buy value from bank)
-func (h *handler) GetValueByOrderDesc() func(c *gin.Context) {
+// GetValueByOrderDesc handles GET one currency by name (best buy value from bank)
+func (h *Currency) GetValueByOrderDesc() func(c *gin.Context) {
 	return func(c *gin.Context) {
 		result, err := h.r.GetByOrder(c.Params.ByName("id"), "buy desc")
 		if err != nil {
@@ -111,8 +111,8 @@ func (h *handler) GetValueByOrderDesc() func(c *gin.Context) {
 	}
 }
 
-// GetBestSellValue handles GET one currency by name (best sell value from bank)
-func (h *handler) GetValueByOrderAsc() func(c *gin.Context) {
+// GetValueByOrderAsc handles GET one currency by name (best sell value from bank)
+func (h *Currency) GetValueByOrderAsc() func(c *gin.Context) {
 	return func(c *gin.Context) {
 		result, err := h.r.GetByOrder(c.Params.ByName("id"), "sell asc")
 		if err != nil {
@@ -123,8 +123,8 @@ func (h *handler) GetValueByOrderAsc() func(c *gin.Context) {
 	}
 }
 
-// GetAllCurrencies handle GET all currencies from the db
-func (h *handler) GetAllValues() func(c *gin.Context) {
+// GetAllValues handle GET all currencies from the db
+func (h *Currency) GetAllValues() func(c *gin.Context) {
 	return func(c *gin.Context) {
 		results, err := h.r.GetAll()
 		if err != nil {
@@ -135,8 +135,8 @@ func (h *handler) GetAllValues() func(c *gin.Context) {
 	}
 }
 
-// GetAllCurrenciesBestBuySell handle GET all the best prices of all currencies from the db
-func (h *handler) GetAllValuesOrdered() func(c *gin.Context) {
+// GetAllValuesOrdered handle GET all the best prices of all currencies from the db
+func (h *Currency) GetAllValuesOrdered() func(c *gin.Context) {
 	return func(c *gin.Context) {
 		bestBuy, bestSell, err := h.r.GetBestBuySell()
 		if err != nil {

@@ -19,7 +19,7 @@ import (
 )
 
 var (
-	handler h.Handler
+	currencyHandler h.Handler
 )
 
 var db *gorm.DB
@@ -47,7 +47,7 @@ func main() {
 	// db.AutoMigrate(&models.Currency{})
 	// migrate.Start(db)
 
-	h := handler.InitializeHandler(db)
+	c := currencyHandler.InitializeHandler(db)
 
 	// Set the router as the default one shipped with Gin
 	router := gin.Default()
@@ -61,19 +61,19 @@ func main() {
 		// Currency Subgroup
 		currency := api.Group("/currency/")
 		{
-			currency.GET("/", h.GetAllValuesOrdered())
+			currency.GET("/", c.GetAllValuesOrdered())
 
-			currency.GET("/:id", h.GetValueByID())
+			currency.GET("/:id", c.GetValueByID())
 
-			currency.GET("/:id/buy", h.GetValueByOrderDesc())
+			currency.GET("/:id/buy", c.GetValueByOrderDesc())
 
-			currency.GET("/:id/sell", h.GetValueByOrderAsc())
+			currency.GET("/:id/sell", c.GetValueByOrderAsc())
 
-			// currency.PUT("/:id", h.UpdateCurrency())
+			// currency.PUT("/:id", c.UpdateCurrency())
 
-			// currency.POST("/", h.CreateCurrency())
+			// currency.POST("/", c.CreateCurrency())
 
-			// currency.DELETE("/:id", h.DeleteCurrency())
+			// currency.DELETE("/:id", c.DeleteCurrency())
 		}
 		// Begin api base routes
 		api.GET("/", func(c *gin.Context) {
