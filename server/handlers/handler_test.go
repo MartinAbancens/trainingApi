@@ -2,15 +2,23 @@ package handler
 
 import (
 	"database/sql"
+	"fmt"
 	"testing"
+	model "trainingApi/server/models"
+
+	"net/http"
+	"net/http/httptest"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	// "github.com/Rosaniline/gorm-ut/pkg/model"
-
+	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 )
+
+type fakeRepo struct {
+}
 
 type Suite struct {
 	suite.Suite
@@ -18,8 +26,13 @@ type Suite struct {
 	mock sqlmock.Sqlmock
 
 	handler  Handler
-	currency Currency
+	fakeRepo fakeRepo
 	// currency *model.Currency
+}
+
+func (fakeRepo *fakeRepo) GetByID() (*model.Currency, error) {
+	m := new(model.Currency)
+	return m, nil
 }
 
 func (s *Suite) SetupSuite() {
@@ -45,4 +58,19 @@ func (s *Suite) AfterTest(_, _ string) {
 
 func TestInit(t *testing.T) {
 	suite.Run(t, new(Suite))
+}
+
+func (s *Suite) Test_handler_GetValueByID() {
+
+	handler := s.handler.GetValueByID()
+	router := gin.New()
+	router.GET("/api/currency/:id", handler)
+
+	req, _ := http.NewRequest("GET", "/api/currency/:id", nil)
+	resp := httptest.NewRecorder()
+	fmt.Println("req:", req)
+	fmt.Println("res:", resp)
+	router.ServeHTTP(resp, req)
+
+	assert.Equal(s.T(), resp.Body.String(), "")
 }
