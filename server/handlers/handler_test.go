@@ -10,8 +10,6 @@ import (
 	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
-
-	model "trainingApi/server/models"
 )
 
 type Suite struct {
@@ -19,8 +17,9 @@ type Suite struct {
 	DB   *gorm.DB
 	mock sqlmock.Sqlmock
 
-	repository Repository
-	currency   *model.Currency
+	handler  Handler
+	currency Currency
+	// currency *model.Currency
 }
 
 func (s *Suite) SetupSuite() {
@@ -37,7 +36,7 @@ func (s *Suite) SetupSuite() {
 
 	s.DB.LogMode(true)
 
-	s.repository = CreateRepository(s.DB)
+	s.handler = InitializeHandler(s.DB)
 }
 
 func (s *Suite) AfterTest(_, _ string) {

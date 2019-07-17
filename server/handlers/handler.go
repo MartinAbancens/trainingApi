@@ -67,12 +67,11 @@ import (
 
 // Handler interface
 type Handler interface {
-	InitializeHandler(*gorm.DB) *Currency
-	GetValueByID()
-	GetValueByOrderDesc()
-	GetValueByOrderAsc()
-	GetAllValues()
-	GetAllValuesOrdered()
+	GetValueByID() func(c *gin.Context)
+	GetValueByOrderDesc() func(c *gin.Context)
+	GetValueByOrderAsc() func(c *gin.Context)
+	GetAllValues() func(c *gin.Context)
+	GetAllValuesOrdered() func(c *gin.Context)
 }
 
 // Currency struct that holds the repository instance and package functions
@@ -81,7 +80,7 @@ type Currency struct {
 }
 
 // InitializeHandler is used to create and obtain a pointer to the handler
-func InitializeHandler(db *gorm.DB) *Currency {
+func InitializeHandler(db *gorm.DB) Handler {
 	return &Currency{
 		r: repo.CreateRepository(db),
 	}
